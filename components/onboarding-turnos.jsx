@@ -64,12 +64,11 @@ const isValidEmail = (email) => {
 
 const Stepper = ({ currentStep }) => {
   return (
-    <ol className="flex gap-1.5 overflow-x-auto pb-1">
+    <ol className="grid grid-cols-7 gap-2">
       {steps.map((step, index) => {
         const status = index < currentStep ? "completed" : index === currentStep ? "current" : "pending"
 
-        const base =
-          "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs bg-white whitespace-nowrap flex-shrink-0"
+        const base = "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs bg-white"
         const stateClass =
           status === "current"
             ? "border-sky-500 bg-sky-50"
@@ -87,9 +86,9 @@ const Stepper = ({ currentStep }) => {
             >
               {status === "completed" ? "✓" : index + 1}
             </div>
-            <div className="flex flex-col">
-              <div className="font-semibold text-slate-800 text-[11px]">{step.label}</div>
-              <div className="text-[9px] text-slate-500 leading-tight">{step.description}</div>
+            <div className="flex flex-col min-w-0">
+              <div className="font-semibold text-slate-800 text-[11px] truncate">{step.label}</div>
+              <div className="text-[9px] text-slate-500 leading-tight truncate">{step.description}</div>
             </div>
           </li>
         )
