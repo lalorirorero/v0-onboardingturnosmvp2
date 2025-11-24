@@ -64,11 +64,12 @@ const isValidEmail = (email) => {
 
 const Stepper = ({ currentStep }) => {
   return (
-    <ol className="grid gap-2 md:grid-cols-3">
+    <ol className="flex gap-1.5 overflow-x-auto pb-1">
       {steps.map((step, index) => {
         const status = index < currentStep ? "completed" : index === currentStep ? "current" : "pending"
 
-        const base = "flex items-start gap-2 rounded-xl border p-3 text-sm bg-white"
+        const base =
+          "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs bg-white whitespace-nowrap flex-shrink-0"
         const stateClass =
           status === "current"
             ? "border-sky-500 bg-sky-50"
@@ -79,16 +80,16 @@ const Stepper = ({ currentStep }) => {
         return (
           <li key={step.id} className={`${base} ${stateClass}`}>
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold
+              className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold flex-shrink-0
               ${status === "current" ? "bg-sky-500 text-white" : ""}
               ${status === "completed" ? "bg-emerald-500 text-white" : ""}
               ${status === "pending" ? "bg-slate-200 text-slate-700" : ""}`}
             >
               {status === "completed" ? "✓" : index + 1}
             </div>
-            <div className="flex-1">
-              <div className="font-semibold text-slate-800">{step.label}</div>
-              <div className="text-[11px] text-slate-500">{step.description}</div>
+            <div className="flex flex-col">
+              <div className="font-semibold text-slate-800 text-[11px]">{step.label}</div>
+              <div className="text-[9px] text-slate-500 leading-tight">{step.description}</div>
             </div>
           </li>
         )
