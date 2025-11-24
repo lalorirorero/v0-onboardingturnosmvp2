@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react" // Added useEffect
 import { Building2 } from "lucide-react" // Import Building2 icon
+import * as XLSX from "xlsx"
 
 // Pasos del flujo
 const steps = [
@@ -1488,6 +1489,227 @@ export default function OnboardingTurnos({}) {
     return nuevoGrupo.id
   }
 
+  const exportToExcel = () => {
+    const workbook = XLSX.utils.book_new()
+
+    // Hoja 1: Datos de la empresa y administrador
+    const empresaData = [
+      ["DATOS EMPRESA"],
+      ["Razón Social", empresa.razonSocial],
+      ["Nombre de fantasía", empresa.nombreFantasia || ""],
+      ["RUT", empresa.rut],
+      ["Giro", empresa.giro || ""],
+      ["Dirección", empresa.direccion],
+      ["Comuna", empresa.comuna || ""],
+      ["Email de facturación", empresa.emailFacturacion || ""],
+      ["Teléfono de contacto", empresa.telefono || ""],
+      ["Sistema", empresa.sistema || ""],
+      ["Rubro", empresa.rubro || ""],
+      [],
+      ["Datos Administrador del Sistema"],
+      ["Nombre", admin.nombre],
+      ["RUT", admin.rut],
+      ["Teléfono Contacto", admin.telefono || ""],
+      ["Correo", admin.email],
+    ]
+
+    const ws1 = XLSX.utils.aoa_to_sheet(empresaData)
+
+    // Aplicar estilos a los encabezados
+    ws1["A1"] = { v: "DATOS EMPRESA", t: "s", s: { fill: { fgColor: { rgb: "00B0F0" } } } }
+    ws1["A13"] = { v: "Datos Administrador del Sistema", t: "s", s: { fill: { fgColor: { rgb: "00B0F0" } } } }
+
+    XLSX.utils.book_append_sheet(workbook, ws1, "Datos Empresa")
+
+    // Hoja 2: Trabajadores y planificaciones
+    const headers = [
+      "Rut Completo",
+      "Correo Personal",
+      "Nombres",
+      "Apellidos",
+      "Grupo",
+      "Período a planificar: turnos",
+      "Lunes",
+      "",
+      "",
+      "Martes",
+      "",
+      "",
+      "Miércoles",
+      "",
+      "",
+      "Jueves",
+      "",
+      "",
+      "Viernes",
+      "",
+      "",
+      "Sábado",
+      "",
+      "",
+      "Domingo",
+      "",
+      "",
+      "TELÉFONOS MARCAJE POR VICTORIA CALL",
+    ]
+
+    const subHeaders = [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Fecha Fin Planificación",
+      "Entrada",
+      "Col (minutos)",
+      "Salida",
+      "Entrada",
+      "Col",
+      "Salida",
+      "Entrada",
+      "Col",
+      "Salida",
+      "Entrada",
+      "Col",
+      "Salida",
+      "Entrada",
+      "Col",
+      "Salida",
+      "Entrada",
+      "Col",
+      "Salida",
+      "Entrada",
+      "Col",
+      "Salida",
+      "",
+    ]
+
+    const trabajadoresData = [headers, subHeaders]
+
+    // Agregar datos de trabajadores con sus asignaciones
+    trabajadores.forEach((trabajador) => {
+      const asignacion = asignaciones.find((a) => a.trabajadorId === trabajador.id)
+      let planificacion = null
+      let fechaFin = ""
+      const turnosPorDia = Array(7).fill({ entrada: "", colacion: "", salida: "" })
+
+      if (asignacion) {
+        planificacion = planificaciones.find((p) => p.id === asignacion.planificacionId)
+        fechaFin = asignacion.hasta === "permanente" ? "PERMANENTE" : asignacion.hasta
+
+        if (planificacion) {
+          // Obtener los turnos para cada día de la semana
+          planificacion.diasTurnos.forEach((turnoId, dayIndex) => {
+            if (turnoId) {
+              const turno = turnos.find((t) => t.id === turnoId)
+              if (turno) {
+                turnosPorDia[dayIndex] = {
+                  entrada: turno.horaInicio || "",
+                  colacion: turno.colacionMinutos || "",
+                  salida: turno.horaFin || "",
+                }
+              }
+            }
+          })
+        }
+      }
+
+      const grupoNombre = trabajador.grupoId
+        ? empresa.grupos?.find((g) => g.id === trabajador.grupoId)?.nombre || ""
+        : ""
+
+      const row = [
+        trabajador.rut,
+        trabajador.correo,
+        trabajador.nombre.split(" ")[0] || "",
+        trabajador.nombre.split(" ").slice(1).join(" ") || "",
+        grupoNombre,
+        fechaFin,
+        // Lunes
+        turnosPorDia[0].entrada,
+        turnosPorDia[0].colacion,
+        turnosPorDia[0].salida,
+        // Martes
+        turnosPorDia[1].entrada,
+        turnosPorDia[1].colacion,
+        turnosPorDia[1].salida,
+        // Miércoles
+        turnosPorDia[2].entrada,
+        turnosPorDia[2].colacion,
+        turnosPorDia[2].salida,
+        // Jueves
+        turnosPorDia[3].entrada,
+        turnosPorDia[3].colacion,
+        turnosPorDia[3].salida,
+        // Viernes
+        turnosPorDia[4].entrada,
+        turnosPorDia[4].colacion,
+        turnosPorDia[4].salida,
+        // Sábado
+        turnosPorDia[5].entrada,
+        turnosPorDia[5].colacion,
+        turnosPorDia[5].salida,
+        // Domingo
+        turnosPorDia[6].entrada,
+        turnosPorDia[6].colacion,
+        turnosPorDia[6].salida,
+        // Teléfonos
+        [trabajador.telefono1, trabajador.telefono2, trabajador.telefono3]
+          .filter(Boolean)
+          .join(" | "),
+      ]
+
+      trabajadoresData.push(row)
+    })
+
+    const ws2 = XLSX.utils.aoa_to_sheet(trabajadoresData)
+
+    // Ajustar anchos de columna
+    ws2["!cols"] = [
+      { wch: 15 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 25 },
+    ]
+
+    XLSX.utils.book_append_sheet(workbook, ws2, "Planificación")
+
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" })
+    const blob = new Blob([wbout], { type: "application/octet-stream" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `Onboarding_${empresa.nombreFantasia || "Empresa"}_${new Date().toISOString().split("T")[0]}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const handleNext = () => {
     setTrabajadoresErrors({ byId: {}, global: [] })
 
@@ -1572,7 +1794,7 @@ export default function OnboardingTurnos({}) {
     }
     console.log("Resumen final:", resumen)
     alert(
-      `Onboarding completado.\n\nAdmin: ${admin.nombre}\nEmpresa: ${empresa.nombre}\nTrabajadores: ${trabajadores.length}\nTurnos: ${turnos.length}\nPlanificaciones: ${planificaciones.length}\nAsignaciones: ${asignaciones.length}`,
+      `Onboarding completado.\n\nAdmin: ${admin.nombre}\nEmpresa: ${empresa.nombreFantasia}\nTrabajadores: ${trabajadores.length}\nTurnos: ${turnos.length}\nPlanificaciones: ${planificaciones.length}\nAsignaciones: ${asignaciones.length}`,
     )
   }
 
@@ -1617,6 +1839,28 @@ export default function OnboardingTurnos({}) {
             Todos los datos han sido registrados correctamente. Ahora se crearán los turnos, planificaciones y
             asignaciones en el sistema.
           </p>
+          <button
+            type="button"
+            onClick={exportToExcel}
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Descargar Excel
+          </button>
         </section>
       )}
 
