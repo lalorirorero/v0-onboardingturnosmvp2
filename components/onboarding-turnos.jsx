@@ -97,71 +97,110 @@ const Stepper = ({ currentStep }) => {
   )
 }
 
-const AdminStep = ({ admin, setAdmin }) => {
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setAdmin({ ...admin, [name]: value })
+const AdminStep = ({ admins, setAdmins }) => {
+  const handleChange = (id, field, value) => {
+    setAdmins(admins.map((admin) => (admin.id === id ? { ...admin, [field]: value } : admin)))
+  }
+
+  const addAdmin = () => {
+    setAdmins([
+      ...admins,
+      {
+        id: Date.now(),
+        nombre: "",
+        rut: "",
+        email: "",
+        telefono: "",
+      },
+    ])
+  }
+
+  const removeAdmin = (id) => {
+    if (admins.length === 1) return
+    setAdmins(admins.filter((admin) => admin.id !== id))
   }
 
   return (
     <section className="space-y-4">
       <header>
-        <h2 className="text-lg font-semibold text-slate-900">Datos del administrador</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Administradores</h2>
         <p className="text-xs text-slate-500">
-          Persona de contacto principal para coordinar la implementación y cambios de turnos.
+          Personas de contacto principales para coordinar la implementación y cambios de turnos.
         </p>
       </header>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-1 text-sm">
-          <label className="font-medium">Nombre completo</label>
-          <input
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            type="text"
-            name="nombre"
-            value={admin.nombre}
-            onChange={handleChange}
-            placeholder="Ej: Juan Pérez"
-          />
-        </div>
-        <div className="space-y-1 text-sm">
-          <label className="font-medium">RUT</label>
-          <input
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            type="text"
-            name="rut"
-            value={admin.rut}
-            onChange={handleChange}
-            placeholder="12345678-9"
-          />
-        </div>
-        {/* </CHANGE> */}
-        <div className="space-y-1 text-sm">
-          <label className="font-medium">Correo</label>
-          <input
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            type="email"
-            name="email"
-            value={admin.email}
-            onChange={handleChange}
-            placeholder="admin@empresa.com"
-          />
-        </div>
-        <div className="space-y-1 text-sm">
-          <label className="font-medium">Teléfono</label>
-          <input
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-            type="tel"
-            name="telefono"
-            value={admin.telefono}
-            onChange={handleChange}
-            placeholder="+56 9 1234 5678"
-          />
-        </div>
+      <div className="space-y-4">
+        {admins.map((admin, index) => (
+          <div key={admin.id} className="rounded-xl border border-slate-200 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-medium text-slate-700">Administrador {index + 1}</h3>
+              {admins.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeAdmin(admin.id)}
+                  className="text-xs text-red-500 hover:text-red-700"
+                >
+                  Eliminar
+                </button>
+              )}
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1 text-sm">
+                <label className="font-medium">Nombre completo</label>
+                <input
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  type="text"
+                  value={admin.nombre}
+                  onChange={(e) => handleChange(admin.id, "nombre", e.target.value)}
+                  placeholder="Ej: Juan Pérez"
+                />
+              </div>
+              <div className="space-y-1 text-sm">
+                <label className="font-medium">RUT</label>
+                <input
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  type="text"
+                  value={admin.rut}
+                  onChange={(e) => handleChange(admin.id, "rut", e.target.value)}
+                  placeholder="12345678-9"
+                />
+              </div>
+              <div className="space-y-1 text-sm">
+                <label className="font-medium">Correo</label>
+                <input
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  type="email"
+                  value={admin.email}
+                  onChange={(e) => handleChange(admin.id, "email", e.target.value)}
+                  placeholder="admin@empresa.com"
+                />
+              </div>
+              <div className="space-y-1 text-sm">
+                <label className="font-medium">Teléfono</label>
+                <input
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  type="tel"
+                  value={admin.telefono}
+                  onChange={(e) => handleChange(admin.id, "telefono", e.target.value)}
+                  placeholder="+56 9 1234 5678"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+
+      <button
+        type="button"
+        onClick={addAdmin}
+        className="rounded-xl border-2 border-dashed border-sky-300 px-4 py-2 text-sm font-medium text-sky-600 hover:border-sky-400 hover:bg-sky-50"
+      >
+        + Agregar administrador
+      </button>
     </section>
   )
 }
+// </CHANGE>
 
 const EmpresaStep = ({ empresa, setEmpresa }) => {
   const SISTEMAS = [
@@ -410,13 +449,14 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
         telefono1,
         telefono2,
         telefono3,
+        tipo: "usuario", // Mark as regular user
       }
     })
 
     setTrabajadores([...trabajadores, ...nuevos])
     setBulkText("")
     setErrors({ byId: {}, global: [] })
-  }, [bulkText]) // Dependency on bulkText
+  }, [bulkText])
 
   const updateTrabajador = (id, field, value) => {
     const updated = trabajadores.map((t) => (t.id === id ? { ...t, [field]: value } : t))
@@ -447,12 +487,18 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
         telefono1: "",
         telefono2: "",
         telefono3: "",
+        tipo: "usuario",
       },
     ])
   }
 
   const removeTrabajador = (id) => {
-    if (trabajadores.length === 1) return
+    // Don't allow removing admins from this view
+    const trabajador = trabajadores.find((t) => t.id === id)
+    if (trabajador?.tipo === "administrador") {
+      alert("No se puede eliminar un administrador desde aquí. Elimínalo desde el paso de Administradores.")
+      return
+    }
     setTrabajadores(trabajadores.filter((t) => t.id !== id))
     if (errors?.byId?.[id]) {
       const newById = { ...(errors.byId || {}) }
@@ -468,7 +514,8 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
       <header>
         <h2 className="text-lg font-semibold text-slate-900">Trabajadores</h2>
         <p className="text-xs text-slate-500">
-          Carga una muestra inicial de trabajadores. Luego podrás importar masivamente.
+          Lista completa de trabajadores incluyendo administradores. Los usuarios se pueden agregar manualmente o
+          mediante carga masiva.
         </p>
       </header>
 
@@ -588,8 +635,9 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
         <table className="min-w-full border-collapse text-xs">
           <thead className="bg-slate-50">
             <tr>
+              <th className="px-3 py-2 text-left font-medium text-slate-700">Tipo</th>
               <th className="px-3 py-2 text-left font-medium text-slate-700">Nombre</th>
-              <th className="px-3 py-2 text-left font-medium text-slate-700">RUT / ID</th>
+              <th className="px-3 py-2 text-left font-medium text-slate-700">RUT</th>
               <th className="px-3 py-2 text-left font-medium text-slate-700">Correo</th>
               <th className="px-3 py-2 text-left font-medium text-slate-700">
                 <span className="inline-flex items-center gap-1">
@@ -611,17 +659,28 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
           <tbody>
             {trabajadores.map((t) => {
               const rowErrors = (errors && errors.byId && errors.byId[t.id]) || {}
+              const isAdmin = t.tipo === "administrador"
               return (
-                <tr key={t.id} className="border-t border-slate-100">
+                <tr key={t.id} className={`border-t border-slate-100 ${isAdmin ? "bg-blue-50" : ""}`}>
+                  <td className="px-3 py-1.5">
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        isAdmin ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700"
+                      }`}
+                    >
+                      {isAdmin ? "Admin" : "Usuario"}
+                    </span>
+                  </td>
                   <td className="px-3 py-1.5">
                     <input
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.nombre ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       type="text"
                       value={t.nombre}
                       onChange={(e) => updateTrabajador(t.id, "nombre", e.target.value)}
                       placeholder="Ej: Pedro Soto"
+                      disabled={isAdmin}
                     />
                     {rowErrors.nombre && <p className="mt-0.5 text-[10px] text-red-600">{rowErrors.nombre}</p>}
                   </td>
@@ -629,11 +688,12 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <input
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.rut ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       type="text"
                       value={t.rut}
                       onChange={(e) => updateTrabajador(t.id, "rut", e.target.value)}
                       placeholder="ID interno / RUT"
+                      disabled={isAdmin}
                     />
                     {rowErrors.rut && <p className="mt-0.5 text-[10px] text-red-600">{rowErrors.rut}</p>}
                   </td>
@@ -641,11 +701,12 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <input
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.correo ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       type="email"
                       value={t.correo}
                       onChange={(e) => updateTrabajador(t.id, "correo", e.target.value)}
                       placeholder=" correo@empresa.cl"
+                      disabled={isAdmin}
                     />
                     {rowErrors.correo && <p className="mt-0.5 text-[10px] text-red-600">{rowErrors.correo}</p>}
                   </td>
@@ -653,9 +714,10 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <select
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.grupoId ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       value={t.grupoId}
                       onChange={(e) => updateTrabajador(t.id, "grupoId", e.target.value ? Number(e.target.value) : "")}
+                      disabled={isAdmin}
                     >
                       <option value="">Sin asignar</option>
                       {grupos.map((g) => (
@@ -670,11 +732,12 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <input
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.telefono1 ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       type="tel"
                       value={t.telefono1 || ""}
                       onChange={(e) => updateTrabajador(t.id, "telefono1", e.target.value)}
                       placeholder="+5691234567"
+                      disabled={isAdmin}
                     />
                     {rowErrors.telefono1 && <p className="mt-0.5 text-[10px] text-red-600">{rowErrors.telefono1}</p>}
                   </td>
@@ -682,11 +745,12 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <input
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.telefono2 ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       type="tel"
                       value={t.telefono2 || ""}
                       onChange={(e) => updateTrabajador(t.id, "telefono2", e.target.value)}
                       placeholder="+5691234567"
+                      disabled={isAdmin}
                     />
                     {rowErrors.telefono2 && <p className="mt-0.5 text-[10px] text-red-600">{rowErrors.telefono2}</p>}
                   </td>
@@ -694,11 +758,12 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <input
                       className={`w-full rounded-lg border px-2 py-1 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 ${
                         rowErrors.telefono3 ? "border-red-400" : "border-slate-200"
-                      }`}
+                      } ${isAdmin ? "bg-blue-50" : ""}`}
                       type="tel"
                       value={t.telefono3 || ""}
                       onChange={(e) => updateTrabajador(t.id, "telefono3", e.target.value)}
                       placeholder="+5691234567"
+                      disabled={isAdmin}
                     />
                     {rowErrors.telefono3 && <p className="mt-0.5 text-[10px] text-red-600">{rowErrors.telefono3}</p>}
                   </td>
@@ -706,7 +771,10 @@ const TrabajadoresStep = ({ trabajadores, setTrabajadores, grupos, errors, setEr
                     <button
                       type="button"
                       onClick={() => removeTrabajador(t.id)}
-                      className="text-xs text-slate-500 hover:text-red-500"
+                      className={`text-xs ${
+                        isAdmin ? "cursor-not-allowed text-slate-300" : "text-slate-500 hover:text-red-500"
+                      }`}
+                      disabled={isAdmin}
                     >
                       Eliminar
                     </button>
@@ -1446,12 +1514,15 @@ const AsignacionStep = ({ asignaciones, setAsignaciones, trabajadores, planifica
 
 export default function OnboardingTurnos({}) {
   const [currentStep, setCurrentStep] = useState(0)
-  const [admin, setAdmin] = useState({
-    nombre: "Carlos López",
-    rut: "12345678-9",
-    email: "carlos@empresa.com",
-    telefono: "+56912345678",
-  })
+  const [admins, setAdmins] = useState([
+    {
+      id: Date.now(),
+      nombre: "Carlos López",
+      rut: "12345678-9",
+      email: "carlos@empresa.com",
+      telefono: "+56912345678",
+    },
+  ])
   // </CHANGE>
   const [empresa, setEmpresa] = useState({
     razonSocial: "EDALTEC LTDA",
@@ -1489,6 +1560,27 @@ export default function OnboardingTurnos({}) {
     return nuevoGrupo.id
   }
 
+  useEffect(() => {
+    // Remove old admin entries
+    const nonAdmins = trabajadores.filter((t) => t.tipo !== "administrador")
+
+    // Add current admins as trabajadores
+    const adminTrabajadores = admins.map((admin) => ({
+      id: `admin-${admin.id}`,
+      nombre: admin.nombre,
+      rut: admin.rut,
+      correo: admin.email,
+      grupoId: "",
+      telefono1: admin.telefono,
+      telefono2: "",
+      telefono3: "",
+      tipo: "administrador",
+    }))
+
+    setTrabajadores([...adminTrabajadores, ...nonAdmins])
+  }, [admins])
+  // </CHANGE>
+
   const exportToExcel = () => {
     const workbook = XLSX.utils.book_new()
 
@@ -1507,10 +1599,10 @@ export default function OnboardingTurnos({}) {
       ["Rubro", empresa.rubro || ""],
       [],
       ["Datos Administrador del Sistema"],
-      ["Nombre", admin.nombre],
-      ["RUT", admin.rut],
-      ["Teléfono Contacto", admin.telefono || ""],
-      ["Correo", admin.email],
+      ["Nombre", admins[0].nombre], // Use admins[0] instead of admin
+      ["RUT", admins[0].rut], // Use admins[0] instead of admin
+      ["Teléfono Contacto", admins[0].telefono || ""], // Use admins[0] instead of admin
+      ["Correo", admins[0].email], // Use admins[0] instead of admin
     ]
 
     const ws1 = XLSX.utils.aoa_to_sheet(empresaData)
@@ -1722,16 +1814,23 @@ export default function OnboardingTurnos({}) {
         alert("Completa el RUT de la empresa")
         return
       }
-    } else if (currentStep === 1) {
-      if (!admin.nombre.trim() || !admin.email.trim()) {
-        alert("Completa nombre y email del administrador")
+    }
+    // Added validation for admin step
+    if (currentStep === 1) {
+      const invalidAdmin = admins.find((admin) => !admin.nombre || !admin.email)
+      if (invalidAdmin) {
+        alert("Completa todos los campos requeridos de los administradores")
         return
       }
-      if (!isValidEmail(admin.email)) {
-        alert("Email inválido")
+      // Validate email format for all admins
+      const invalidEmail = admins.some((admin) => admin.email && !isValidEmail(admin.email))
+      if (invalidEmail) {
+        alert("Uno o más correos de administrador son inválidos")
         return
       }
-    } else if (currentStep === 2) {
+    }
+    // </CHANGE>
+    if (currentStep === 2) {
       if (trabajadores.length === 0) {
         alert("Debes cargar al menos 1 trabajador")
         return
@@ -1769,9 +1868,19 @@ export default function OnboardingTurnos({}) {
         alert("Debes crear al menos 1 turno")
         return
       }
+      const turnoSinNombre = turnos.find((t) => !t.nombre.trim())
+      if (turnoSinNombre) {
+        alert("Todos los turnos deben tener un nombre")
+        return
+      }
     } else if (currentStep === 4) {
       if (planificaciones.length === 0) {
         alert("Debes crear al menos 1 planificación")
+        return
+      }
+      const planificacionSinNombre = planificaciones.find((p) => !p.nombre.trim())
+      if (planificacionSinNombre) {
+        alert("Todas las planificaciones deben tener un nombre")
         return
       }
     }
@@ -1785,7 +1894,7 @@ export default function OnboardingTurnos({}) {
 
   const handleFinal = () => {
     const resumen = {
-      admin,
+      admin: admins, // Use admins array
       empresa,
       trabajadores,
       turnos,
@@ -1794,7 +1903,7 @@ export default function OnboardingTurnos({}) {
     }
     console.log("Resumen final:", resumen)
     alert(
-      `Onboarding completado.\n\nAdmin: ${admin.nombre}\nEmpresa: ${empresa.nombreFantasia}\nTrabajadores: ${trabajadores.length}\nTurnos: ${turnos.length}\nPlanificaciones: ${planificaciones.length}\nAsignaciones: ${asignaciones.length}`,
+      `Onboarding completado.\n\nAdmin: ${admins[0].nombre}\nEmpresa: ${empresa.nombreFantasia}\nTrabajadores: ${trabajadores.length}\nTurnos: ${turnos.length}\nPlanificaciones: ${planificaciones.length}\nAsignaciones: ${asignaciones.length}`,
     )
   }
 
@@ -1803,7 +1912,7 @@ export default function OnboardingTurnos({}) {
       <Stepper currentStep={currentStep} />
 
       {currentStep === 0 && <EmpresaStep empresa={empresa} setEmpresa={setEmpresa} />}
-      {currentStep === 1 && <AdminStep admin={admin} setAdmin={setAdmin} />}
+      {currentStep === 1 && <AdminStep admins={admins} setAdmins={setAdmins} />}
       {currentStep === 2 && (
         <TrabajadoresStep
           trabajadores={trabajadores}
