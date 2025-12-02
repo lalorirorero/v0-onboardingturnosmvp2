@@ -392,18 +392,10 @@ const EmpresaStep = ({ empresa, setEmpresa }) => {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-1">
-            Grupos / sucursales
-            <span
-              className="cursor-help rounded-full border border-slate-300 px-1 text-[10px] text-slate-600"
-              title={TOOLTIP_GRUPO}
-            >
-              ?
-            </span>
-          </h3>
+          
           {/* Removed addGrupo button */}
         </div>
-        <p className="text-[11px] text-slate-500">Ejemplo: Casa matriz, Bodega San Bernardo, Cliente Retail, etc.</p>
+        
 
         <div className="space-y-2">{/* Removed dynamic rendering of grupos */}</div>
       </div>
