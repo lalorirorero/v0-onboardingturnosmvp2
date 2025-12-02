@@ -200,7 +200,6 @@ const AdminStep = ({ admins, setAdmins }) => {
     </section>
   )
 }
-// </CHANGE>
 
 const EmpresaStep = ({ empresa, setEmpresa }) => {
   const SISTEMAS = [
@@ -239,8 +238,18 @@ const EmpresaStep = ({ empresa, setEmpresa }) => {
   ]
 
   const handleEmpresaChange = (e) => {
-    const { name, value } = e.target
-    setEmpresa({ ...empresa, [name]: value })
+    setEmpresa({ ...empresa, [e.target.name]: e.target.value })
+  }
+
+  const handleSistemaChange = (sistemaValue) => {
+    const currentSistemas = empresa.sistema || []
+    const isSelected = currentSistemas.includes(sistemaValue)
+
+    const newSistemas = isSelected
+      ? currentSistemas.filter((s) => s !== sistemaValue)
+      : [...currentSistemas, sistemaValue]
+
+    setEmpresa({ ...empresa, sistema: newSistemas })
   }
 
   // Removed entire grupos creation section - grupos only created from worker import
@@ -337,27 +346,30 @@ const EmpresaStep = ({ empresa, setEmpresa }) => {
             <input
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               type="tel"
-              name="telefono"
-              value={empresa.telefono || ""}
+              name="telefonoContacto"
+              value={empresa.telefonoContacto || ""}
               onChange={handleEmpresaChange}
               placeholder="Ej: 56995925655"
             />
           </div>
           <div className="space-y-1 text-sm">
             <label className="font-medium">Sistema</label>
-            <select
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              name="sistema"
-              value={empresa.sistema || ""}
-              onChange={handleEmpresaChange}
-            >
-              <option value="">Seleccionar sistema...</option>
+            <div className="space-y-2 rounded-xl border border-slate-200 p-3">
               {SISTEMAS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+                <label
+                  key={s}
+                  className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={(empresa.sistema || []).includes(s)}
+                    onChange={() => handleSistemaChange(s)}
+                    className="h-4 w-4 rounded border-slate-300 text-sky-500 focus:ring-sky-500"
+                  />
+                  <span className="text-sm">{s}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
           <div className="space-y-1 text-sm">
             <label className="font-medium">Rubro</label>
@@ -1523,7 +1535,7 @@ export default function OnboardingTurnos({}) {
       telefono: "+56912345678",
     },
   ])
-  // </CHANGE>
+
   const [empresa, setEmpresa] = useState({
     razonSocial: "EDALTEC LTDA",
     nombreFantasia: "EDALTEC",
@@ -1532,9 +1544,9 @@ export default function OnboardingTurnos({}) {
     direccion: "Chiloé 5138",
     comuna: "San Miguel",
     emailFacturacion: "marcelo.vargas@edaltec.cl",
-    telefono: "56995925655",
-    sistema: "3.- GeoVictoria APP",
-    rubro: "5.- DISTRIBUCIÓN",
+    telefonoContacto: "56995925655", // Changed from telefono to telefonoContacto to match updates
+    sistema: ["3.- GeoVictoria APP"], // Updated to match new sistema options and format
+    rubro: "5.- DISTRIBUCIÓN", // Updated to match new rubro options
     grupos: [],
   })
   const [trabajadores, setTrabajadores] = useState([])
@@ -1579,12 +1591,11 @@ export default function OnboardingTurnos({}) {
 
     setTrabajadores([...adminTrabajadores, ...nonAdmins])
   }, [admins])
-  // </CHANGE>
 
   const exportToExcel = () => {
     const workbook = XLSX.utils.book_new()
 
-    // Hoja 1: Datos de la empresa y administrador
+    // Hoja 1: Datos de la empresa y the first admin
     const empresaData = [
       ["DATOS EMPRESA"],
       ["Razón Social", empresa.razonSocial],
@@ -1594,8 +1605,8 @@ export default function OnboardingTurnos({}) {
       ["Dirección", empresa.direccion],
       ["Comuna", empresa.comuna || ""],
       ["Email de facturación", empresa.emailFacturacion || ""],
-      ["Teléfono de contacto", empresa.telefono || ""],
-      ["Sistema", empresa.sistema || ""],
+      ["Teléfono de contacto", empresa.telefonoContacto || ""], // Use telefonoContacto
+      ["Sistema", empresa.sistema.join(", ") || ""], // Join array elements for display
       ["Rubro", empresa.rubro || ""],
       [],
       ["Datos Administrador del Sistema"],
@@ -1812,6 +1823,16 @@ export default function OnboardingTurnos({}) {
       }
       if (!empresa.rut.trim()) {
         alert("Completa el RUT de la empresa")
+        return
+      }
+      // Validation for telefonoContacto
+      if (!empresa.telefonoContacto.trim()) {
+        alert("Completa el teléfono de contacto de la empresa")
+        return
+      }
+      // Validation for sistema
+      if (!empresa.sistema || empresa.sistema.length === 0) {
+        alert("Selecciona al menos un sistema")
         return
       }
     }
