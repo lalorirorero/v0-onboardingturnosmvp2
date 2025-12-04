@@ -1515,42 +1515,32 @@ const AsignacionStep = ({ asignaciones, setAsignaciones, trabajadores, planifica
     </section>
   )
 }
-function ZohoFlowTestBox() {
-  const [loading, setLoading] = useState(false)
-  const [response, setResponse] = useState(null)
+const handleTest = async () => {
+  try {
+    setLoading(true)
+    setResponse(null)
 
-  const handleTest = async () => {
-    try {
-      setLoading(true)
-      setResponse(null)
+    const res = await fetch("/api/zoho-flow-test", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        deal_id: "PON_AQUI_EL_ID_DEL_DEAL_DE_PRUEBA",
+        mensaje: "Hola Zoho 👋, esto viene desde la app MVP",
+        timestamp: new Date().toISOString(),
+      }),
+    })
 
-      const url = process.env.NEXT_PUBLIC_ZOHO_FLOW_TEST_URL
-      if (!url) {
-        setResponse({ error: "Falta NEXT_PUBLIC_ZOHO_FLOW_TEST_URL en las variables de entorno" })
-        return
-      }
-
-      const res = await fetch(url, {
-        method: "POST", // Zoho Flow solo acepta POST/PUT, está OK
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          // Ajusta estos campos a lo que espera tu Flow:
-          deal_id: "3525045000506896257",
-          mensaje: "Hola Zoho 👋, esto viene desde la app MVP",
-          timestamp: new Date().toISOString(),
-        }),
-      })
-
-      const data = await res.json().catch(() => null)
-      setResponse(data || { ok: true })
-    } catch (e) {
-      setResponse({ error: e.message })
-    } finally {
-      setLoading(false)
-    }
+    const data = await res.json().catch(() => null)
+    setResponse(data || { ok: true })
+  } catch (e) {
+    setResponse({ error: e.message || "Error desconocido" })
+  } finally {
+    setLoading(false)
   }
+}
+
 
   return (
     <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-xs text-slate-700">
