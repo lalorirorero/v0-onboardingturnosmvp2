@@ -1515,6 +1515,62 @@ const AsignacionStep = ({ asignaciones, setAsignaciones, trabajadores, planifica
     </section>
   )
 }
+function ZohoFlowTestBox() {
+  const [loading, setLoading] = useState(false)
+  const [response, setResponse] = useState(null)
+
+  const handleTest = async () => {
+    try {
+      setLoading(true)
+      setResponse(null)
+
+      const url = process.env.NEXT_PUBLIC_ZOHO_FLOW_TEST_URL
+      if (!url) {
+        setResponse({ error: "Falta NEXT_PUBLIC_ZOHO_FLOW_TEST_URL en las variables de entorno" })
+        return
+      }
+
+      const res = await fetch(url, {
+        method: "POST", // Zoho Flow solo acepta POST/PUT, está OK
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // Ajusta estos campos a lo que espera tu Flow:
+          deal_id: "3525045000506896257",
+          mensaje: "Hola Zoho 👋, esto viene desde la app MVP",
+          timestamp: new Date().toISOString(),
+        }),
+      })
+
+      const data = await res.json().catch(() => null)
+      setResponse(data || { ok: true })
+    } catch (e) {
+      setResponse({ error: e.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-xs text-slate-700">
+      <p className="font-semibold mb-1">Prueba mínima de conexión con Zoho Flow</p>
+      <button
+        type="button"
+        onClick={handleTest}
+        disabled={loading}
+        className="inline-flex items-center rounded-full bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-700 disabled:bg-slate-300"
+      >
+        {loading ? "Enviando..." : "Probar conexión"}
+      </button>
+      {response && (
+        <pre className="mt-2 max-h-40 overflow-auto rounded bg-slate-900 p-2 text-[10px] text-slate-50 whitespace-pre-wrap">
+          {JSON.stringify(response, null, 2)}
+        </pre>
+      )}
+    </div>
+  )
+}
 
 export default function OnboardingTurnos({}) {
   const [currentStep, setCurrentStep] = useState(0)
@@ -1924,6 +1980,10 @@ export default function OnboardingTurnos({}) {
     <div className="space-y-8">
       <Stepper currentStep={currentStep} />
 
+      {/* Caja de prueba de conexión con Zoho Flow */}
+      <ZohoFlowTestBox />
+
+      
       {currentStep === 0 && <EmpresaStep empresa={empresa} setEmpresa={setEmpresa} />}
       {currentStep === 1 && <AdminStep admins={admins} setAdmins={setAdmins} />}
       {currentStep === 2 && (
