@@ -1515,52 +1515,6 @@ const AsignacionStep = ({ asignaciones, setAsignaciones, trabajadores, planifica
     </section>
   )
 }
-const handleTest = async () => {
-  try {
-    setLoading(true)
-    setResponse(null)
-
-    const res = await fetch("/api/zoho-flow-test", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        deal_id: "PON_AQUI_EL_ID_DEL_DEAL_DE_PRUEBA",
-        mensaje: "Hola Zoho 👋, esto viene desde la app MVP",
-        timestamp: new Date().toISOString(),
-      }),
-    })
-
-    const data = await res.json().catch(() => null)
-    setResponse(data || { ok: true })
-  } catch (e) {
-    setResponse({ error: e.message || "Error desconocido" })
-  } finally {
-    setLoading(false)
-  }
-}
-
-
-  return (
-    <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-xs text-slate-700">
-      <p className="font-semibold mb-1">Prueba mínima de conexión con Zoho Flow</p>
-      <button
-        type="button"
-        onClick={handleTest}
-        disabled={loading}
-        className="inline-flex items-center rounded-full bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-700 disabled:bg-slate-300"
-      >
-        {loading ? "Enviando..." : "Probar conexión"}
-      </button>
-      {response && (
-        <pre className="mt-2 max-h-40 overflow-auto rounded bg-slate-900 p-2 text-[10px] text-slate-50 whitespace-pre-wrap">
-          {JSON.stringify(response, null, 2)}
-        </pre>
-      )}
-    </div>
-  )
-}
 
 export default function OnboardingTurnos({}) {
   const [currentStep, setCurrentStep] = useState(0)
@@ -1970,10 +1924,6 @@ export default function OnboardingTurnos({}) {
     <div className="space-y-8">
       <Stepper currentStep={currentStep} />
 
-      {/* Caja de prueba de conexión con Zoho Flow */}
-      <ZohoFlowTestBox />
-
-      
       {currentStep === 0 && <EmpresaStep empresa={empresa} setEmpresa={setEmpresa} />}
       {currentStep === 1 && <AdminStep admins={admins} setAdmins={setAdmins} />}
       {currentStep === 2 && (
